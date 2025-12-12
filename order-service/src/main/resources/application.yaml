@@ -7,8 +7,8 @@ spring:
   datasource:
     # Vẫn dùng chung Database thphone_db
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/thphone_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    username: root
+    password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
