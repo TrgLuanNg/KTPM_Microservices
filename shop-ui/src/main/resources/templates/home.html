@@ -8,96 +8,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        body {
-            background-color: #C79BF8; /* Màu tím chủ đạo giống App cũ */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-        }
-        .header {
-            padding: 20px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .header-logo {
-            font-weight: bold;
-            font-size: 1.5rem;
-            background: white;
-            color: #C79BF8;
-            padding: 5px 15px;
-            border-radius: 20px;
-        }
-        /* Style cho thanh cuộn ngang (Horizontal List) */
-        .horizontal-scroll-container {
-            overflow-x: auto;
-            white-space: nowrap;
-            padding-bottom: 20px;
-            scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
-        }
-        .horizontal-scroll-container::-webkit-scrollbar {
-            display: none; /* Ẩn thanh cuộn trên Chrome/Safari */
-        }
-        
-        .product-card {
-            display: inline-block;
-            width: 220px;
-            background: white;
-            border-radius: 15px;
-            margin-right: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            vertical-align: top;
-            transition: transform 0.2s;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-        .product-img {
-            width: 100%;
-            height: 180px;
-            object-fit: contain;
-            padding: 10px;
-            background: #fff;
-        }
-        .card-body {
-            padding: 10px;
-            white-space: normal; /* Cho phép xuống dòng text */
-        }
-        .price-tag {
-            color: #d63031;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        .btn-buy {
-            background-color: #6c5ce7;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 8px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        .btn-buy:hover {
-            background-color: #5649c0;
-        }
-        .section-title {
-            color: white;
-            font-weight: bold;
-            font-size: 1.4rem;
-            margin: 20px 0 15px 0;
-            padding-left: 10px;
-            border-left: 4px solid white;
-        }
+        body { background-color: #C79BF8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; }
+        .header { padding: 20px; color: white; display: flex; align-items: center; justify-content: space-between; }
+        .header-logo { font-weight: bold; font-size: 1.5rem; background: white; color: #C79BF8; padding: 5px 15px; border-radius: 20px; }
+        .horizontal-scroll-container { overflow-x: auto; white-space: nowrap; padding-bottom: 20px; scrollbar-width: none; }
+        .horizontal-scroll-container::-webkit-scrollbar { display: none; }
+        .product-card { display: inline-block; width: 220px; background: white; border-radius: 15px; margin-right: 15px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); vertical-align: top; transition: transform 0.2s; }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-img { width: 100%; height: 180px; object-fit: contain; padding: 10px; background: #fff; }
+        .card-body { padding: 10px; white-space: normal; }
+        .price-tag { color: #d63031; font-weight: bold; font-size: 1.1rem; }
+        .btn-buy { background-color: #6c5ce7; color: white; border: none; width: 100%; padding: 8px; border-radius: 8px; margin-top: 10px; cursor: pointer; }
+        .btn-buy:hover { background-color: #5649c0; }
+        .section-title { color: white; font-weight: bold; font-size: 1.4rem; margin: 20px 0 15px 0; padding-left: 10px; border-left: 4px solid white; }
     </style>
 </head>
 <body>
 
     <div class="container header">
         <div class="header-logo">TH PHONE</div>
-        <div>
-            <span style="font-size: 1.2rem;">Chào, <b th:text="${userName}">User</b>!</span>
-            <i class="fas fa-user-circle fa-2x ms-2"></i>
+        <div class="d-flex align-items-center gap-3">
+            <span id="userDisplay" style="font-size: 1.2rem;">Khách</span>
+            <button id="btnLoginConfig" class="btn btn-light btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#authModal">
+                Đăng Nhập
+            </button>
+            <button id="btnLogout" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold d-none" onclick="logout()">
+                Thoát
+            </button>
         </div>
     </div>
 
@@ -115,49 +52,151 @@
             <span th:text="${error}"></span>
         </div>
 
-        <div class="section-title">Điện Thoại HOT (Spring Boot)</div>
-        
+        <div class="section-title">Điện Thoại HOT</div>
         <div class="horizontal-scroll-container">
             <div class="product-card" th:each="p : ${products}">
                 <img th:src="${p.image}" class="product-img" alt="Phone Image">
                 <div class="card-body">
                     <h6 class="fw-bold text-truncate" th:text="${p.name}">Tên điện thoại</h6>
                     <div class="text-muted small mb-1" th:text="${p.owner}">Hãng</div>
-                    <div class="price-tag" 
-                         th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">
-                         Price
-                    </div>
-                    <button class="btn-buy">
+                    <div class="price-tag" th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">Price</div>
+                    <button class="btn-buy" th:onclick="buyProduct([[${p.id}]], [[${p.name}]], [[${p.price}]])">
                         <i class="fas fa-cart-plus me-1"></i> Mua ngay
                     </button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="section-title">Có thể bạn sẽ thích</div>
-        <div class="row g-3 pb-5">
-            <div class="col-6 col-md-3">
-                <div class="bg-white p-3 rounded-4 shadow-sm text-center">
-                    <i class="fas fa-headphones-alt fa-3x text-info mb-2"></i>
-                    <h6>Phụ kiện</h6>
+    <div class="modal fade" id="authModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Đăng Nhập Tài Khoản</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="bg-white p-3 rounded-4 shadow-sm text-center">
-                    <i class="fas fa-tablet-alt fa-3x text-warning mb-2"></i>
-                    <h6>Máy tính bảng</h6>
-                </div>
-            </div>
-             <div class="col-6 col-md-3">
-                <div class="bg-white p-3 rounded-4 shadow-sm text-center">
-                    <i class="fas fa-shield-alt fa-3x text-success mb-2"></i>
-                    <h6>Bảo hành VIP</h6>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" id="txtEmail" class="form-control" placeholder="admin@gmail.com">
+                    </div>
+                    <div class="mb-3">
+                        <label>Mật khẩu</label>
+                        <input type="password" id="txtPass" class="form-control" placeholder="123456">
+                    </div>
+                    <div id="authMsg" class="text-danger small mb-2"></div>
+                    <button class="btn btn-primary w-100" onclick="login()">Đăng Nhập</button>
+                    <hr>
+                    <div class="text-center">Chưa có tài khoản? <a href="#" onclick="alert('Tính năng đang phát triển!')">Đăng ký</a></div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // CẤU HÌNH API URL
+        const AUTH_API = "http://localhost:8082/api/auth";
+        const ORDER_API = "http://localhost:8083/api/orders";
+
+        // Biến lưu thông tin user hiện tại (Lưu tạm trên trình duyệt)
+        let currentUser = JSON.parse(localStorage.getItem("USER_INFO"));
+
+        // 1. Kiểm tra trạng thái đăng nhập khi tải trang
+        checkLoginState();
+
+        function checkLoginState() {
+            if (currentUser) {
+                document.getElementById("userDisplay").innerText = "Chào, " + currentUser.name;
+                document.getElementById("btnLoginConfig").classList.add("d-none");
+                document.getElementById("btnLogout").classList.remove("d-none");
+            } else {
+                document.getElementById("userDisplay").innerText = "Khách";
+                document.getElementById("btnLoginConfig").classList.remove("d-none");
+                document.getElementById("btnLogout").classList.add("d-none");
+            }
+        }
+
+        // 2. Hàm Đăng Nhập (Gọi Auth Service - 8082)
+        async function login() {
+            const email = document.getElementById("txtEmail").value;
+            const password = document.getElementById("txtPass").value;
+
+            try {
+                const response = await fetch(AUTH_API + "/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email, password: password })
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    // Lưu user vào LocalStorage
+                    localStorage.setItem("USER_INFO", JSON.stringify(user));
+                    currentUser = user;
+                    
+                    alert("Đăng nhập thành công!");
+                    checkLoginState();
+                    
+                    // Đóng modal
+                    var modalEl = document.getElementById('authModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+                } else {
+                    document.getElementById("authMsg").innerText = "Sai email hoặc mật khẩu!";
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Lỗi kết nối tới Auth Service!");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("USER_INFO");
+            currentUser = null;
+            checkLoginState();
+            location.reload();
+        }
+
+        // 3. Hàm Mua Hàng (Gọi Order Service - 8083)
+        async function buyProduct(id, name, price) {
+            // Bắt buộc đăng nhập mới được mua
+            if (!currentUser) {
+                alert("Vui lòng đăng nhập để mua hàng!");
+                // Mở modal đăng nhập
+                new bootstrap.Modal(document.getElementById('authModal')).show();
+                return;
+            }
+
+            if(!confirm(`Bạn có muốn mua điện thoại ${name} với giá ${price} đ?`)) return;
+
+            const orderData = {
+                userId: currentUser.id,
+                customerName: currentUser.name,
+                customerPhone: "0988888888", // Hardcode tạm
+                customerAddress: "TP. Hồ Chí Minh",
+                totalPrice: price,
+                productListJson: JSON.stringify([{ productId: id, productName: name, price: price }])
+            };
+
+            try {
+                const response = await fetch(ORDER_API, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (response.ok) {
+                    alert("🎉 Đặt hàng thành công! Mã đơn hàng đã được lưu.");
+                } else {
+                    alert("Có lỗi khi tạo đơn hàng!");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Không thể kết nối tới Order Service!");
+            }
+        }
+    </script>
 </body>
 </html>
