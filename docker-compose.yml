@@ -1,27 +1,60 @@
-version: '3'
 services:
-  # --- SERVICE 1: BACKEND ---
+  # --- SERVICE 1: PRODUCT ---
   product-service:
-    build: ./product-service  
-    container_name: backend-api
+    build: ./product-service
+    container_name: backend-product
     ports:
       - "8080:8080"
+    environment:
+      # Dùng host.docker.internal để trỏ về MySQL trên máy thật
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/thphone_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=  # <--- Điền mật khẩu MySQL của bạn vào đây (nếu có)
     networks:
       - my-network
 
-  # --- SERVICE 2: FRONTEND ---
+  # --- SERVICE 2: AUTH ---
+  auth-service:
+    build: ./auth-service
+    container_name: backend-auth
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/thphone_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD= 
+    networks:
+      - my-network
+
+  # --- SERVICE 3: ORDER ---
+  order-service:
+    build: ./order-service
+    container_name: backend-order
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/thphone_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD= 
+    networks:
+      - my-network
+
+  # --- SERVICE 4: FRONTEND ---
   shop-ui:
-    build: ./shop-ui 
+    build: ./shop-ui
     container_name: frontend-ui
     ports:
-      - "80:80"  
+      - "80:80"
     environment:
-      - API_URL=http://product-service:8080/api/products
+      # Sửa API_URL thành APP_BACKEND_URL để Spring Boot nhận diện
+      - APP_BACKEND_URL=http://product-service:8080/api/products
     depends_on:
       - product-service
+      - auth-service
     networks:
       - my-network
 
+# --- KHAI BÁO NETWORK ---
 networks:
   my-network:
     driver: bridge
