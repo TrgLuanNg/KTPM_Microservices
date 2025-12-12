@@ -1,4 +1,4 @@
-package main.java.com.lttbdd.order_service.controller;
+package com.lttbdd.order_service.controller;
 
 import com.lttbdd.order_service.entity.Order;
 import com.lttbdd.order_service.repository.OrderRepository;

@@ -1,4 +1,4 @@
-package main.java.com.lttbdd.order_service.entity;
+package com.lttbdd.order_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

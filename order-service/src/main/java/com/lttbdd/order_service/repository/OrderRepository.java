@@ -1,4 +1,4 @@
-package main.java.com.lttbdd.order_service.repository;
+package com.lttbdd.order_service.repository;
 
 import com.lttbdd.order_service.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
