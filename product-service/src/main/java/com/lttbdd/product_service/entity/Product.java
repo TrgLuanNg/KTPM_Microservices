@@ -15,12 +15,15 @@ public class Product {
 
     private String name;
     
-    @Column(length = 2000) // Link ảnh dài
+    @Column(length = 2000)
     private String image;
     
     private Long price;
-    private String owner; // Hãng (Apple, Samsung...)
+    private String owner; // Hãng
     
-    @Column(columnDefinition = "TEXT") // Mô tả dài
+    @Column(columnDefinition = "TEXT")
     private String description;
+
+    // --- THÊM DÒNG NÀY ---
+    private Integer quantity; // Số lượng tồn kho
 }

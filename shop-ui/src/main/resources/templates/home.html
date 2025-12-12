@@ -3,255 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TH Phone Store</title>
+    <title>TH Phone Store - Công Nghệ Đỉnh Cao</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        body { background-color: #C79BF8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; }
-        .header { padding: 20px; color: white; display: flex; align-items: center; justify-content: space-between; }
-        .header-logo { font-weight: bold; font-size: 1.5rem; background: white; color: #C79BF8; padding: 5px 15px; border-radius: 20px; }
-        .horizontal-scroll-container { overflow-x: auto; white-space: nowrap; padding-bottom: 20px; scrollbar-width: none; }
-        .horizontal-scroll-container::-webkit-scrollbar { display: none; }
-        .product-card { display: inline-block; width: 220px; background: white; border-radius: 15px; margin-right: 15px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); vertical-align: top; transition: transform 0.2s; }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-img { width: 100%; height: 180px; object-fit: contain; padding: 10px; background: #fff; }
-        .card-body { padding: 10px; white-space: normal; }
-        .price-tag { color: #d63031; font-weight: bold; font-size: 1.1rem; }
-        .btn-buy { background-color: #6c5ce7; color: white; border: none; width: 100%; padding: 8px; border-radius: 8px; margin-top: 10px; cursor: pointer; }
-        .btn-buy:hover { background-color: #5649c0; }
-        .section-title { color: white; font-weight: bold; font-size: 1.4rem; margin: 20px 0 15px 0; padding-left: 10px; border-left: 4px solid white; }
+        :root { --primary-color: #6c5ce7; --secondary-color: #a29bfe; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+        
+        /* Navbar đẹp hơn */
+        .navbar { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: 1px; }
+        
+        /* Carousel Banner */
+        .carousel-item img { height: 350px; object-fit: cover; border-radius: 0 0 20px 20px; }
+        
+        /* Card sản phẩm hiện đại */
+        .product-card {
+            background: white; border: none; border-radius: 15px;
+            transition: all 0.3s ease; overflow: hidden; height: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: relative;
+        }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(108, 92, 231, 0.2); }
+        .product-img-wrapper { position: relative; padding: 20px; background: #fff; text-align: center; height: 220px; display: flex; align-items: center; justify-content: center; }
+        .product-img { max-height: 180px; max-width: 100%; transition: transform 0.3s; }
+        .product-card:hover .product-img { transform: scale(1.1); }
+        
+        /* Badge số lượng */
+        .stock-badge { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.7); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; backdrop-filter: blur(5px); }
+        .stock-badge.low { background: #e74c3c; } /* Màu đỏ khi sắp hết hàng */
+        
+        .card-body { padding: 20px; display: flex; flex-direction: column; }
+        .product-title { font-weight: 700; font-size: 1.1rem; color: #2d3436; margin-bottom: 5px; text-decoration: none; }
+        .product-title:hover { color: var(--primary-color); }
+        .price-tag { color: #d63031; font-weight: 800; font-size: 1.25rem; margin-bottom: 15px; }
+        
+        /* Input số lượng */
+        .qty-input-group { display: flex; align-items: center; justify-content: space-between; margin-top: auto; background: #f1f2f6; border-radius: 10px; padding: 5px; }
+        .btn-qty { border: none; background: white; color: #2d3436; width: 30px; height: 30px; border-radius: 8px; font-weight: bold; transition: 0.2s; }
+        .btn-qty:hover { background: var(--primary-color); color: white; }
+        .input-qty { width: 40px; text-align: center; border: none; background: transparent; font-weight: bold; }
+        
+        .btn-add-cart { width: 100%; background: var(--primary-color); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 600; margin-top: 15px; transition: 0.3s; }
+        .btn-add-cart:hover { background: #5649c0; transform: scale(1.02); }
+        .btn-add-cart:disabled { background: #b2bec3; cursor: not-allowed; transform: none; }
     </style>
 </head>
 <body>
-    <div class="container header">
-        <div class="header-logo">TH PHONE</div>
-        
-        <div class="d-flex align-items-center gap-3">
-            
-            <a href="/cart" class="btn btn-warning btn-sm rounded-pill fw-bold text-dark">
-                <i class="fas fa-shopping-cart"></i> Giỏ (<span id="cartCount">0</span>)
-            </a>
-    
-            <span id="userDisplay" style="font-size: 1.2rem;">Khách</span>
-            <button id="btnLoginConfig" class="btn btn-light btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#authModal">
-                Đăng Nhập
-            </button>
-            <button id="btnLogout" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold d-none" onclick="logout()">
-                Thoát
-            </button>
-        </div>
-    </div>
 
-    <div class="container">
-        <div id="carouselExample" class="carousel slide mb-4 rounded-4 overflow-hidden shadow">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-mobile-alt me-2"></i>TH STORE</a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <a href="/cart" class="btn btn-light rounded-pill fw-bold text-primary position-relative">
+                    <i class="fas fa-shopping-cart"></i> 
+                    <span class="d-none d-md-inline ms-1">Giỏ hàng</span>
+                    <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </a>
+
+                <div class="vr text-white opacity-50 mx-2"></div>
+
+                <div class="dropdown" id="userSection">
+                    <span id="userDisplay" class="text-white fw-bold me-2 cursor-pointer" data-bs-toggle="dropdown">Khách</span>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
+                    </ul>
+                </div>
+                
+                <button id="btnLoginConfig" class="btn btn-outline-light rounded-pill btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#authModal">
+                    Đăng nhập
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div style="height: 80px;"></div>
+
+    <div class="container py-4">
+        <div id="mainCarousel" class="carousel slide mb-5 rounded-4 shadow overflow-hidden" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <img src="https://img.tgdd.vn/imgt/f_webp,fit_outside,quality_100/https://cdn.tgdd.vn/2023/12/banner/1200-300-1200x300.png" class="d-block w-100" alt="...">
+                    <img src="https://cdn.tgdd.vn/2023/12/banner/1200-300-1200x300.png" class="d-block w-100" alt="Banner 1">
                 </div>
             </div>
         </div>
 
-        <div th:if="${error}" class="alert alert-danger" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <span th:text="${error}"></span>
+        <div th:if="${error}" class="alert alert-danger shadow-sm">
+            <i class="fas fa-wifi me-2"></i> <span th:text="${error}"></span>
         </div>
 
-        <div class="section-title">Điện Thoại HOT</div>
-        <div class="horizontal-scroll-container">
-            <div class="product-card" th:each="p : ${products}">
-                <a th:href="@{/product/{id}(id=${p.id})}">
-                    <img th:src="${p.image}" class="product-img" alt="Phone Image">
-                </a>
-                <div class="card-body">
-                    <a th:href="@{/product/{id}(id=${p.id})}" class="text-decoration-none text-dark">
-                        <h6 class="fw-bold text-truncate" th:text="${p.name}">Tên điện thoại</h6>
+        <h3 class="mb-4 fw-bold text-dark border-start border-4 border-primary ps-3">🔥 SẢN PHẨM NỔI BẬT</h3>
+        
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            <div class="col" th:each="p : ${products}">
+                <div class="product-card h-100">
+                    
+                    <div class="stock-badge" th:classappend="${p.quantity < 5} ? 'low' : ''">
+                        <i class="fas fa-box-open me-1"></i> Còn: <span th:text="${p.quantity}" th:id="'stock-' + ${p.id}">10</span>
+                    </div>
+
+                    <a th:href="@{/product/{id}(id=${p.id})}" class="product-img-wrapper">
+                        <img th:src="${p.image}" class="product-img" alt="Phone">
                     </a>
-                    <div class="text-muted small mb-1" th:text="${p.owner}">Hãng</div>
-                    <div class="price-tag" th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">Price</div>
-            
-                    <button class="btn-buy" th:onclick="addToCart([[${p.id}]], [[${p.name}]], [[${p.price}]], [[${p.image}]])">
-                        <i class="fas fa-cart-plus me-1"></i> Thêm vào giỏ
-                    </button>
+                    
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-bold mb-1" th:text="${p.owner}">Hãng</div>
+                        <a th:href="@{/product/{id}(id=${p.id})}" class="product-title text-truncate" th:text="${p.name}">Tên SP</a>
+                        <div class="price-tag" th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
+                        
+                        <div class="qty-input-group">
+                            <button class="btn-qty" onclick="changeInputQty(this, -1)">-</button>
+                            <input type="number" class="input-qty" value="1" min="1" th:max="${p.quantity}" th:id="'qty-input-' + ${p.id}" readonly>
+                            <button class="btn-qty" onclick="changeInputQty(this, 1)">+</button>
+                        </div>
+
+                        <button class="btn-add-cart" 
+                                th:onclick="addToCart([[${p.id}]], [[${p.name}]], [[${p.price}]], [[${p.image}]], [[${p.quantity}]])"
+                                th:disabled="${p.quantity == 0}">
+                            <i class="fas fa-cart-plus me-2"></i> <span th:text="${p.quantity > 0 ? 'Thêm vào giỏ' : 'Hết hàng'}">Thêm</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="authModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Đăng Nhập Tài Khoản</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Đăng Nhập</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label>Email</label>
-                        <input type="email" id="txtEmail" class="form-control" placeholder="admin@gmail.com">
+                        <label class="form-label fw-bold">Email</label>
+                        <input type="email" id="txtEmail" class="form-control bg-light" placeholder="admin@gmail.com">
                     </div>
                     <div class="mb-3">
-                        <label>Mật khẩu</label>
-                        <input type="password" id="txtPass" class="form-control" placeholder="123456">
+                        <label class="form-label fw-bold">Mật khẩu</label>
+                        <input type="password" id="txtPass" class="form-control bg-light" placeholder="******">
                     </div>
-                    <div id="authMsg" class="text-danger small mb-2"></div>
-                    <button class="btn btn-primary w-100" onclick="login()">Đăng Nhập</button>
-                    <hr>
-                    <div class="text-center">Chưa có tài khoản? <a href="#" onclick="alert('Tính năng đang phát triển!')">Đăng ký</a></div>
+                    <div id="authMsg" class="text-danger small mb-3 text-center fw-bold"></div>
+                    <button class="btn btn-primary w-100 py-2 fw-bold rounded-3" onclick="login()">ĐĂNG NHẬP NGAY</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        // CẤU HÌNH API URL
+        // --- LOGIC GIAO DIỆN SỐ LƯỢNG ---
+        function changeInputQty(btn, change) {
+            const input = btn.parentElement.querySelector('.input-qty');
+            let newVal = parseInt(input.value) + change;
+            let max = parseInt(input.getAttribute('max'));
+            
+            if (newVal >= 1 && newVal <= max) {
+                input.value = newVal;
+            }
+        }
+
+        // --- LOGIC GIỎ HÀNG & KIỂM TRA TỒN KHO ---
+        function addToCart(id, name, price, image, maxStock) {
+            let cart = JSON.parse(localStorage.getItem("CART")) || [];
+            
+            // Lấy số lượng user đang chọn ở ô input
+            let inputQty = parseInt(document.getElementById('qty-input-' + id).value);
+            
+            let existingItem = cart.find(item => item.id === id);
+            let currentQtyInCart = existingItem ? existingItem.quantity : 0;
+            
+            // KIỂM TRA QUAN TRỌNG: Tổng số lượng (trong giỏ + muốn mua thêm) có vượt quá kho không?
+            if (currentQtyInCart + inputQty > maxStock) {
+                alert(`Trong kho chỉ còn ${maxStock} sản phẩm.\nBạn đã có ${currentQtyInCart} trong giỏ.`);
+                return;
+            }
+
+            if (existingItem) {
+                existingItem.quantity += inputQty;
+            } else {
+                cart.push({ id, name, price, image, quantity: inputQty, maxStock: maxStock }); // Lưu cả maxStock vào giỏ để validate sau này
+            }
+            
+            localStorage.setItem("CART", JSON.stringify(cart));
+            updateCartCount();
+            
+            // Hiệu ứng thông báo nhỏ (Toast) thay vì Alert
+            showToast(`Đã thêm ${inputQty} x ${name}`);
+        }
+
+        function updateCartCount() {
+            let cart = JSON.parse(localStorage.getItem("CART")) || [];
+            let total = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById("cartCount").innerText = total;
+        }
+
+        function showToast(message) {
+            // Tạo nhanh một thông báo nhỏ góc màn hình
+            let div = document.createElement("div");
+            div.style.cssText = "position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 10px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 5px 15px rgba(0,0,0,0.2); animation: fadeIn 0.3s;";
+            div.innerHTML = `<i class="fas fa-check-circle me-2"></i> ${message}`;
+            document.body.appendChild(div);
+            setTimeout(() => { div.remove(); }, 3000);
+        }
+        
+        // --- LOGIC ĐĂNG NHẬP (Giữ nguyên logic cũ nhưng cập nhật UI) ---
         const AUTH_API = "http://localhost:8082/api/auth";
-        const ORDER_API = "http://localhost:8083/api/orders";
-
-        // Biến lưu thông tin user hiện tại (Lưu tạm trên trình duyệt)
         let currentUser = JSON.parse(localStorage.getItem("USER_INFO"));
-
-        // 1. Kiểm tra trạng thái đăng nhập khi tải trang
         checkLoginState();
+        updateCartCount();
 
         function checkLoginState() {
             if (currentUser) {
                 document.getElementById("userDisplay").innerText = "Chào, " + currentUser.name;
                 document.getElementById("btnLoginConfig").classList.add("d-none");
-                document.getElementById("btnLogout").classList.remove("d-none");
+                document.getElementById("userSection").classList.remove("d-none");
             } else {
-                document.getElementById("userDisplay").innerText = "Khách";
                 document.getElementById("btnLoginConfig").classList.remove("d-none");
-                document.getElementById("btnLogout").classList.add("d-none");
+                document.getElementById("userSection").classList.add("d-none");
             }
         }
 
-        // 2. Hàm Đăng Nhập (Gọi Auth Service - 8082)
         async function login() {
             const email = document.getElementById("txtEmail").value;
             const password = document.getElementById("txtPass").value;
-
             try {
                 const response = await fetch(AUTH_API + "/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email: email, password: password })
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
                 });
-
                 if (response.ok) {
-                    const user = await response.json();
-                    // Lưu user vào LocalStorage
-                    localStorage.setItem("USER_INFO", JSON.stringify(user));
-                    currentUser = user;
-                    
-                    alert("Đăng nhập thành công!");
-                    checkLoginState();
-                    
-                    // Đóng modal
-                    var modalEl = document.getElementById('authModal');
-                    var modal = bootstrap.Modal.getInstance(modalEl);
-                    modal.hide();
+                    currentUser = await response.json();
+                    localStorage.setItem("USER_INFO", JSON.stringify(currentUser));
+                    location.reload();
                 } else {
-                    document.getElementById("authMsg").innerText = "Sai email hoặc mật khẩu!";
+                    document.getElementById("authMsg").innerText = "Sai thông tin đăng nhập!";
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Lỗi kết nối tới Auth Service!");
-            }
+            } catch (err) { alert("Lỗi kết nối Server!"); }
         }
 
         function logout() {
             localStorage.removeItem("USER_INFO");
-            currentUser = null;
-            checkLoginState();
             location.reload();
         }
-
-        // 3. Hàm Mua Hàng (Gọi Order Service - 8083)
-        async function buyProduct(id, name, price) {
-            // Bắt buộc đăng nhập mới được mua
-            if (!currentUser) {
-                alert("Vui lòng đăng nhập để mua hàng!");
-                // Mở modal đăng nhập
-                new bootstrap.Modal(document.getElementById('authModal')).show();
-                return;
-            }
-
-            if(!confirm(`Bạn có muốn mua điện thoại ${name} với giá ${price} đ?`)) return;
-
-            const orderData = {
-                userId: currentUser.id,
-                customerName: currentUser.name,
-                customerPhone: "0988888888", // Hardcode tạm
-                customerAddress: "TP. Hồ Chí Minh",
-                totalPrice: price,
-                productListJson: JSON.stringify([{ productId: id, productName: name, price: price }])
-            };
-
-            try {
-                const response = await fetch(ORDER_API, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(orderData)
-                });
-
-                if (response.ok) {
-                    alert("🎉 Đặt hàng thành công! Mã đơn hàng đã được lưu.");
-                } else {
-                    alert("Có lỗi khi tạo đơn hàng!");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Không thể kết nối tới Order Service!");
-            }
-        }
-
-        function addToCart(id, name, price, image) {
-            // Lấy giỏ hàng từ LocalStorage (nếu chưa có thì tạo mảng rỗng)
-            let cart = JSON.parse(localStorage.getItem("CART")) || [];
-            
-            let existingItem = cart.find(item => item.id === id);
-            
-            if (existingItem) {
-                // Nếu có rồi thì tăng số lượng
-                existingItem.quantity += 1;
-            } else {
-                // Nếu chưa có thì thêm mới
-                cart.push({ 
-                    id: id, 
-                    name: name, 
-                    price: price, 
-                    image: image, 
-                    quantity: 1 
-                });
-            }
-            
-            // Lưu lại vào LocalStorage
-            localStorage.setItem("CART", JSON.stringify(cart));
-            
-            // Cập nhật số lượng trên nút giỏ hàng (cho chuyên nghiệp)
-            updateCartCount();
-            
-            alert("Đã thêm " + name + " vào giỏ hàng!");
-        }
-
-        // Hàm phụ để cập nhật số lượng hiển thị trên nút Giỏ hàng
-        function updateCartCount() {
-            let cart = JSON.parse(localStorage.getItem("CART")) || [];
-            let totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-            
-            // Nếu bạn đã thêm thẻ span id="cartCount" như code HTML ở trên
-            let countEl = document.getElementById("cartCount");
-            if(countEl) countEl.innerText = totalCount;
-        }
-
-        // Gọi hàm này khi tải trang để số lượng hiển thị đúng
-        updateCartCount();
-
-        // (Bạn có thể xóa hàm buyProduct cũ đi vì không dùng nữa)
     </script>
 </body>
 </html>
-
