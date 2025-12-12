@@ -9,7 +9,7 @@
     
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/">TH PHONE STORE</a>
+            <a class="navbar-brand fw-bold" href="/"><i class="fas fa-chevron-left me-2"></i>TIẾP TỤC MUA SẮM</a>
         </div>
     </nav>
 
@@ -25,7 +25,7 @@
                                 <tr>
                                     <th>Sản phẩm</th>
                                     <th>Đơn giá</th>
-                                    <th>SL</th>
+                                    <th>Số lượng</th>
                                     <th>Thành tiền</th>
                                     <th>Xóa</th>
                                 </tr>
@@ -85,7 +85,7 @@
                             <label class="form-label">Tỉnh / Thành phố</label>
                             <select id="selProvince" class="form-select">
                                 <option value="">-- Chọn Tỉnh/Thành --</option>
-                                </select>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Địa chỉ cụ thể</label>
@@ -104,7 +104,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- 1. DANH SÁCH 63 TỈNH THÀNH VIỆT NAM ---
+        // --- 1. DANH SÁCH TỈNH THÀNH ---
         const provinces = [
             "Hà Nội", "Hồ Chí Minh", "Hải Phòng", "Đà Nẵng", "Cần Thơ",
             "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh",
@@ -118,17 +118,13 @@
             "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang",
             "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
         ];
-
-        // Load tỉnh thành vào Select box
         const selProvince = document.getElementById("selProvince");
         provinces.sort().forEach(p => {
             let option = document.createElement("option");
-            option.value = p;
-            option.text = p;
-            selProvince.appendChild(option);
+            option.value = p; option.text = p; selProvince.appendChild(option);
         });
 
-        // --- 2. XỬ LÝ GIỎ HÀNG ---
+        // --- 2. XỬ LÝ GIỎ HÀNG (CÓ CHECK TỒN KHO) ---
         let cart = JSON.parse(localStorage.getItem("CART")) || [];
         const cartBody = document.getElementById("cartBody");
         const emptyMsg = document.getElementById("emptyCartMsg");
@@ -143,28 +139,39 @@
                 document.getElementById("tempTotal").innerText = "0 đ";
                 return;
             }
-            
             emptyMsg.classList.add("d-none");
 
             cart.forEach((item, index) => {
                 let subtotal = item.price * item.quantity;
                 total += subtotal;
                 
+                // Kiểm tra xem đã đạt max tồn kho chưa để disable nút +
+                // Lưu ý: item.maxStock được lưu từ trang Home
+                let maxStock = item.maxStock || 999; // Mặc định cao nếu dữ liệu cũ chưa có maxStock
+                let isMaxReached = item.quantity >= maxStock;
+
                 cartBody.innerHTML += `
                     <tr>
                         <td>
                             <div class="d-flex align-items-center">
                                 <img src="${item.image}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;" class="rounded">
-                                <span class="fw-bold text-truncate" style="max-width: 150px;">${item.name}</span>
+                                <div>
+                                    <div class="fw-bold text-truncate" style="max-width: 150px;">${item.name}</div>
+                                    <small class="text-muted fst-italic">Kho còn: ${maxStock}</small>
+                                </div>
                             </div>
                         </td>
                         <td>${item.price.toLocaleString()} đ</td>
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <button class="btn btn-outline-secondary" onclick="updateQty(${index}, -1)">-</button>
-                                <button class="btn btn-outline-secondary" disabled>${item.quantity}</button>
-                                <button class="btn btn-outline-secondary" onclick="updateQty(${index}, 1)">+</button>
+                                <button class="btn btn-outline-secondary" style="width: 40px" disabled>${item.quantity}</button>
+                                
+                                <button class="btn btn-outline-secondary" 
+                                        onclick="updateQty(${index}, 1)" 
+                                        ${isMaxReached ? 'disabled' : ''}>+</button>
                             </div>
+                            ${isMaxReached ? '<div class="text-danger" style="font-size: 0.7rem">Đã đạt tối đa</div>' : ''}
                         </td>
                         <td class="fw-bold">${subtotal.toLocaleString()} đ</td>
                         <td><button class="btn btn-sm btn-outline-danger" onclick="removeItem(${index})"><i class="fas fa-trash"></i></button></td>
@@ -178,15 +185,26 @@
         }
 
         function updateQty(index, change) {
-            if (cart[index].quantity + change > 0) {
-                cart[index].quantity += change;
+            let item = cart[index];
+            let maxStock = item.maxStock || 999;
+            let newQty = item.quantity + change;
+
+            // Chặn giảm dưới 1
+            if (newQty < 1) return;
+
+            // Chặn tăng quá tồn kho (Validation lần 2 để chắc chắn)
+            if (change > 0 && newQty > maxStock) {
+                alert(`Kho chỉ còn ${maxStock} sản phẩm!`);
+                return;
             }
+
+            item.quantity = newQty;
             localStorage.setItem("CART", JSON.stringify(cart));
             renderCart();
         }
 
         function removeItem(index) {
-            if(confirm("Bạn muốn xóa sản phẩm này?")) {
+            if(confirm("Xóa sản phẩm này khỏi giỏ?")) {
                 cart.splice(index, 1);
                 localStorage.setItem("CART", JSON.stringify(cart));
                 renderCart();
@@ -195,12 +213,11 @@
 
         renderCart();
 
-        // --- 3. XỬ LÝ THANH TOÁN ---
+        // --- 3. THANH TOÁN ---
         const modalEl = document.getElementById('checkoutModal');
         const checkoutModal = new bootstrap.Modal(modalEl);
 
         function openCheckoutModal() {
-            // Kiểm tra đăng nhập
             let currentUser = JSON.parse(localStorage.getItem("USER_INFO"));
             if (!currentUser) {
                 alert("Vui lòng đăng nhập trước khi thanh toán!");
@@ -211,50 +228,37 @@
                 alert("Giỏ hàng trống!");
                 return;
             }
-
-            // Điền sẵn tên nếu có
             document.getElementById("txtName").value = currentUser.name || "";
             checkoutModal.show();
         }
 
         async function confirmCheckout() {
             let currentUser = JSON.parse(localStorage.getItem("USER_INFO"));
-            
-            // Lấy dữ liệu từ form Modal
             const name = document.getElementById("txtName").value.trim();
             const phone = document.getElementById("txtPhone").value.trim();
             const province = document.getElementById("selProvince").value;
             const addressDetail = document.getElementById("txtAddressDetail").value.trim();
 
-            // Validate
             if (!name || !phone || !province || !addressDetail) {
-                alert("Vui lòng điền đầy đủ thông tin giao hàng!");
+                alert("Vui lòng điền đủ thông tin!");
                 return;
             }
 
-            // Ghép địa chỉ đầy đủ
             const fullAddress = `${addressDetail}, ${province}`;
-
-            // Tính tổng tiền
             let finalTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-            // Tạo object Order để gửi đi
             const orderData = {
                 userId: currentUser.id,
                 customerName: name,
                 customerPhone: phone,
-                customerAddress: fullAddress, // <--- ĐỊA CHỈ ĐƯỢC GỬI Ở ĐÂY
+                customerAddress: fullAddress,
                 totalPrice: finalTotal,
                 productListJson: JSON.stringify(cart)
             };
 
-            // Hiệu ứng loading
             document.getElementById("checkoutLoading").classList.remove("d-none");
 
             try {
-                // Gọi API tạo đơn hàng (Order Service - 8083)
-                // Dùng APP_BACKEND_URL đã cấu hình không được vì đây là Client-side JS
-                // Ta gọi trực tiếp tới localhost:8083 (hoặc qua Gateway nếu có)
                 const response = await fetch("http://localhost:8083/api/orders", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -263,19 +267,17 @@
 
                 if (response.ok) {
                     checkoutModal.hide();
-                    localStorage.removeItem("CART"); // Xóa giỏ hàng
+                    localStorage.removeItem("CART");
                     cart = [];
                     renderCart();
-                    
-                    // Thông báo đẹp
-                    alert(`🎉 Đặt hàng thành công!\nĐơn hàng sẽ được giao tới: ${fullAddress}`);
+                    alert(`🎉 Đặt hàng thành công!\nĐơn sẽ giao tới: ${fullAddress}`);
                     window.location.href = "/";
                 } else {
-                    alert("Có lỗi xảy ra khi tạo đơn hàng!");
+                    alert("Lỗi khi tạo đơn hàng!");
                 }
             } catch (err) {
                 console.error(err);
-                alert("Không thể kết nối tới Order Service! (Kiểm tra xem service 8083 có chạy không)");
+                alert("Không thể kết nối tới Order Service!");
             } finally {
                 document.getElementById("checkoutLoading").classList.add("d-none");
             }
