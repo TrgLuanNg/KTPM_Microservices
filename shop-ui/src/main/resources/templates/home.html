@@ -24,10 +24,15 @@
     </style>
 </head>
 <body>
-
     <div class="container header">
         <div class="header-logo">TH PHONE</div>
+        
         <div class="d-flex align-items-center gap-3">
+            
+            <a href="/cart" class="btn btn-warning btn-sm rounded-pill fw-bold text-dark">
+                <i class="fas fa-shopping-cart"></i> Giỏ (<span id="cartCount">0</span>)
+            </a>
+    
             <span id="userDisplay" style="font-size: 1.2rem;">Khách</span>
             <button id="btnLoginConfig" class="btn btn-light btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#authModal">
                 Đăng Nhập
@@ -55,13 +60,18 @@
         <div class="section-title">Điện Thoại HOT</div>
         <div class="horizontal-scroll-container">
             <div class="product-card" th:each="p : ${products}">
-                <img th:src="${p.image}" class="product-img" alt="Phone Image">
+                <a th:href="@{/product/{id}(id=${p.id})}">
+                    <img th:src="${p.image}" class="product-img" alt="Phone Image">
+                </a>
                 <div class="card-body">
-                    <h6 class="fw-bold text-truncate" th:text="${p.name}">Tên điện thoại</h6>
+                    <a th:href="@{/product/{id}(id=${p.id})}" class="text-decoration-none text-dark">
+                        <h6 class="fw-bold text-truncate" th:text="${p.name}">Tên điện thoại</h6>
+                    </a>
                     <div class="text-muted small mb-1" th:text="${p.owner}">Hãng</div>
                     <div class="price-tag" th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">Price</div>
-                    <button class="btn-buy" th:onclick="buyProduct([[${p.id}]], [[${p.name}]], [[${p.price}]])">
-                        <i class="fas fa-cart-plus me-1"></i> Mua ngay
+            
+                    <button class="btn-buy" th:onclick="addToCart([[${p.id}]], [[${p.name}]], [[${p.price}]], [[${p.image}]])">
+                        <i class="fas fa-cart-plus me-1"></i> Thêm vào giỏ
                     </button>
                 </div>
             </div>
@@ -197,6 +207,51 @@
                 alert("Không thể kết nối tới Order Service!");
             }
         }
+
+        function addToCart(id, name, price, image) {
+            // Lấy giỏ hàng từ LocalStorage (nếu chưa có thì tạo mảng rỗng)
+            let cart = JSON.parse(localStorage.getItem("CART")) || [];
+            
+            let existingItem = cart.find(item => item.id === id);
+            
+            if (existingItem) {
+                // Nếu có rồi thì tăng số lượng
+                existingItem.quantity += 1;
+            } else {
+                // Nếu chưa có thì thêm mới
+                cart.push({ 
+                    id: id, 
+                    name: name, 
+                    price: price, 
+                    image: image, 
+                    quantity: 1 
+                });
+            }
+            
+            // Lưu lại vào LocalStorage
+            localStorage.setItem("CART", JSON.stringify(cart));
+            
+            // Cập nhật số lượng trên nút giỏ hàng (cho chuyên nghiệp)
+            updateCartCount();
+            
+            alert("Đã thêm " + name + " vào giỏ hàng!");
+        }
+
+        // Hàm phụ để cập nhật số lượng hiển thị trên nút Giỏ hàng
+        function updateCartCount() {
+            let cart = JSON.parse(localStorage.getItem("CART")) || [];
+            let totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            // Nếu bạn đã thêm thẻ span id="cartCount" như code HTML ở trên
+            let countEl = document.getElementById("cartCount");
+            if(countEl) countEl.innerText = totalCount;
+        }
+
+        // Gọi hàm này khi tải trang để số lượng hiển thị đúng
+        updateCartCount();
+
+        // (Bạn có thể xóa hàm buyProduct cũ đi vì không dùng nữa)
     </script>
 </body>
 </html>
+

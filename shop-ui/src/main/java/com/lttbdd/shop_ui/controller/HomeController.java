@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Map;
@@ -32,3 +33,24 @@ public class HomeController {
         return "home";
     }
 }
+
+@GetMapping("/product/{id}")
+    public String productDetail(@PathVariable Long id, Model model) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            // Gọi API lấy 1 sản phẩm: /api/products/{id}
+            String url = backendUrl + "/" + id;
+            Map product = restTemplate.getForObject(url, Map.class);
+            
+            model.addAttribute("product", product);
+        } catch (Exception e) {
+            model.addAttribute("error", "Không tìm thấy sản phẩm!");
+        }
+        return "detail"; // Trả về file detail.html
+    }
+}
+
+@GetMapping("/cart")
+    public String viewCart() {
+        return "cart"; // Trả về file cart.html
+    }

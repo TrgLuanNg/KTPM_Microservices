@@ -35,7 +35,8 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/thphone_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD= 
+      - SPRING_DATASOURCE_PASSWORD=
+      - TZ=Asia/Ho_Chi_Minh  # <--- THÊM DÒNG NÀY
     networks:
       - my-network
 
