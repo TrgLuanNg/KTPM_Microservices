@@ -1,0 +1,12 @@
+server:
+  port: 80
+
+spring:
+  application:
+    name: shop-ui
+
+# Định nghĩa đường dẫn tới Backend
+# Mặc định là localhost:8080 (khi chạy test trên máy)
+# Khi chạy Docker, ta sẽ ghi đè giá trị này sau
+app:
+  backend-url: http://localhost:8080/api/products

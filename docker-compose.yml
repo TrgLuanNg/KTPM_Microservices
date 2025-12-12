@@ -1,0 +1,27 @@
+version: '3'
+services:
+  # --- SERVICE 1: BACKEND ---
+  product-service:
+    build: ./product-service  
+    container_name: backend-api
+    ports:
+      - "8080:8080"
+    networks:
+      - my-network
+
+  # --- SERVICE 2: FRONTEND ---
+  shop-ui:
+    build: ./shop-ui 
+    container_name: frontend-ui
+    ports:
+      - "80:80"  
+    environment:
+      - API_URL=http://product-service:8080/api/products
+    depends_on:
+      - product-service
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
