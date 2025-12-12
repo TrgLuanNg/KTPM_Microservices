@@ -3,43 +3,148 @@
 <head>
     <title>Giỏ hàng của bạn</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
-        <h2 class="mb-4">🛒 Giỏ hàng</h2>
-        
-        <table class="table table-bordered bg-white shadow-sm">
-            <thead>
-                <tr>
-                    <th>Sản phẩm</th>
-                    <th>Đơn giá</th>
-                    <th>Số lượng</th>
-                    <th>Thành tiền</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody id="cartBody">
-                </tbody>
-        </table>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">TH PHONE STORE</a>
+        </div>
+    </nav>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <h4>Tổng cộng: <span id="totalPrice" class="text-danger">0 đ</span></h4>
-            <div>
-                <a href="/" class="btn btn-secondary">Tiếp tục mua sắm</a>
-                <button class="btn btn-success" onclick="checkout()">✅ Xác nhận Thanh Toán</button>
+    <div class="container">
+        <h2 class="mb-4 text-center text-primary fw-bold"><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h2>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Đơn giá</th>
+                                    <th>SL</th>
+                                    <th>Thành tiền</th>
+                                    <th>Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartBody">
+                                </tbody>
+                        </table>
+                        <div id="emptyCartMsg" class="text-center p-5 d-none">
+                            <i class="fas fa-shopping-basket fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Giỏ hàng đang trống!</p>
+                            <a href="/" class="btn btn-primary">Mua sắm ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold">Tóm tắt đơn hàng</div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Tạm tính:</span>
+                            <span id="tempTotal" class="fw-bold">0 đ</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="h5">Tổng cộng:</span>
+                            <span id="finalTotal" class="h5 text-danger">0 đ</span>
+                        </div>
+                        <button class="btn btn-success w-100 py-2 fw-bold" onclick="openCheckoutModal()">
+                            TIẾN HÀNH ĐẶT HÀNG
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <div class="modal fade" id="checkoutModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-shipping-fast"></i> Thông tin giao hàng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="checkoutForm">
+                        <div class="mb-3">
+                            <label class="form-label">Họ và tên</label>
+                            <input type="text" id="txtName" class="form-control" placeholder="Nguyễn Văn A">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" id="txtPhone" class="form-control" placeholder="0988xxxxxx">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tỉnh / Thành phố</label>
+                            <select id="selProvince" class="form-select">
+                                <option value="">-- Chọn Tỉnh/Thành --</option>
+                                </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ cụ thể</label>
+                            <input type="text" id="txtAddressDetail" class="form-control" placeholder="Số 123, Đường ABC...">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div id="checkoutLoading" class="spinner-border text-success d-none" role="status"></div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success fw-bold" onclick="confirmCheckout()">Xác nhận Đặt hàng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- 1. HIỂN THỊ GIỎ HÀNG ---
+        // --- 1. DANH SÁCH 63 TỈNH THÀNH VIỆT NAM ---
+        const provinces = [
+            "Hà Nội", "Hồ Chí Minh", "Hải Phòng", "Đà Nẵng", "Cần Thơ",
+            "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh",
+            "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau",
+            "Cao Bằng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp",
+            "Gia Lai", "Hà Giang", "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang",
+            "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu",
+            "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An",
+            "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam",
+            "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh",
+            "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang",
+            "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
+        ];
+
+        // Load tỉnh thành vào Select box
+        const selProvince = document.getElementById("selProvince");
+        provinces.sort().forEach(p => {
+            let option = document.createElement("option");
+            option.value = p;
+            option.text = p;
+            selProvince.appendChild(option);
+        });
+
+        // --- 2. XỬ LÝ GIỎ HÀNG ---
         let cart = JSON.parse(localStorage.getItem("CART")) || [];
         const cartBody = document.getElementById("cartBody");
-        const totalEl = document.getElementById("totalPrice");
+        const emptyMsg = document.getElementById("emptyCartMsg");
 
         function renderCart() {
             cartBody.innerHTML = "";
             let total = 0;
+
+            if (cart.length === 0) {
+                emptyMsg.classList.remove("d-none");
+                document.getElementById("finalTotal").innerText = "0 đ";
+                document.getElementById("tempTotal").innerText = "0 đ";
+                return;
+            }
+            
+            emptyMsg.classList.add("d-none");
 
             cart.forEach((item, index) => {
                 let subtotal = item.price * item.quantity;
@@ -48,21 +153,28 @@
                 cartBody.innerHTML += `
                     <tr>
                         <td>
-                            <img src="${item.image}" style="width: 50px; margin-right: 10px;">
-                            ${item.name}
+                            <div class="d-flex align-items-center">
+                                <img src="${item.image}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;" class="rounded">
+                                <span class="fw-bold text-truncate" style="max-width: 150px;">${item.name}</span>
+                            </div>
                         </td>
                         <td>${item.price.toLocaleString()} đ</td>
                         <td>
-                            <button class="btn btn-sm btn-light" onclick="updateQty(${index}, -1)">-</button>
-                            <span class="mx-2">${item.quantity}</span>
-                            <button class="btn btn-sm btn-light" onclick="updateQty(${index}, 1)">+</button>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary" onclick="updateQty(${index}, -1)">-</button>
+                                <button class="btn btn-outline-secondary" disabled>${item.quantity}</button>
+                                <button class="btn btn-outline-secondary" onclick="updateQty(${index}, 1)">+</button>
+                            </div>
                         </td>
-                        <td>${subtotal.toLocaleString()} đ</td>
-                        <td><button class="btn btn-sm btn-danger" onclick="removeItem(${index})">Xóa</button></td>
+                        <td class="fw-bold">${subtotal.toLocaleString()} đ</td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="removeItem(${index})"><i class="fas fa-trash"></i></button></td>
                     </tr>
                 `;
             });
-            totalEl.innerText = total.toLocaleString() + " đ";
+            
+            let totalStr = total.toLocaleString() + " đ";
+            document.getElementById("finalTotal").innerText = totalStr;
+            document.getElementById("tempTotal").innerText = totalStr;
         }
 
         function updateQty(index, change) {
@@ -74,46 +186,75 @@
         }
 
         function removeItem(index) {
-            cart.splice(index, 1);
-            localStorage.setItem("CART", JSON.stringify(cart));
-            renderCart();
+            if(confirm("Bạn muốn xóa sản phẩm này?")) {
+                cart.splice(index, 1);
+                localStorage.setItem("CART", JSON.stringify(cart));
+                renderCart();
+            }
         }
 
         renderCart();
 
-        // --- 2. THANH TOÁN (GỌI API ORDER) ---
-        async function checkout() {
+        // --- 3. XỬ LÝ THANH TOÁN ---
+        const modalEl = document.getElementById('checkoutModal');
+        const checkoutModal = new bootstrap.Modal(modalEl);
+
+        function openCheckoutModal() {
+            // Kiểm tra đăng nhập
             let currentUser = JSON.parse(localStorage.getItem("USER_INFO"));
             if (!currentUser) {
-                alert("Bạn cần đăng nhập để thanh toán!");
-                window.location.href = "/"; // Quay về trang chủ để đăng nhập
+                alert("Vui lòng đăng nhập trước khi thanh toán!");
+                window.location.href = "/"; 
                 return;
             }
-
             if (cart.length === 0) {
-                alert("Giỏ hàng đang trống!");
+                alert("Giỏ hàng trống!");
                 return;
             }
 
-            if (!confirm("Xác nhận đặt hàng?")) return;
+            // Điền sẵn tên nếu có
+            document.getElementById("txtName").value = currentUser.name || "";
+            checkoutModal.show();
+        }
+
+        async function confirmCheckout() {
+            let currentUser = JSON.parse(localStorage.getItem("USER_INFO"));
+            
+            // Lấy dữ liệu từ form Modal
+            const name = document.getElementById("txtName").value.trim();
+            const phone = document.getElementById("txtPhone").value.trim();
+            const province = document.getElementById("selProvince").value;
+            const addressDetail = document.getElementById("txtAddressDetail").value.trim();
+
+            // Validate
+            if (!name || !phone || !province || !addressDetail) {
+                alert("Vui lòng điền đầy đủ thông tin giao hàng!");
+                return;
+            }
+
+            // Ghép địa chỉ đầy đủ
+            const fullAddress = `${addressDetail}, ${province}`;
 
             // Tính tổng tiền
             let finalTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-            // Chuẩn bị dữ liệu gửi đi (Mapping với Order.java trong Order Service)
+            // Tạo object Order để gửi đi
             const orderData = {
                 userId: currentUser.id,
-                customerName: currentUser.name,
-                customerPhone: "0999999999", // Có thể làm thêm ô nhập
-                customerAddress: "Địa chỉ mặc định", // Có thể làm thêm ô nhập
+                customerName: name,
+                customerPhone: phone,
+                customerAddress: fullAddress, // <--- ĐỊA CHỈ ĐƯỢC GỬI Ở ĐÂY
                 totalPrice: finalTotal,
-                // Chuyển mảng cart thành chuỗi JSON để lưu vào database
                 productListJson: JSON.stringify(cart)
             };
 
+            // Hiệu ứng loading
+            document.getElementById("checkoutLoading").classList.remove("d-none");
+
             try {
-                // Gọi tới Order Service (cổng 8083)
-                // Lưu ý: Ở đây ta gọi trực tiếp từ trình duyệt tới 8083 (client-side fetch)
+                // Gọi API tạo đơn hàng (Order Service - 8083)
+                // Dùng APP_BACKEND_URL đã cấu hình không được vì đây là Client-side JS
+                // Ta gọi trực tiếp tới localhost:8083 (hoặc qua Gateway nếu có)
                 const response = await fetch("http://localhost:8083/api/orders", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -121,15 +262,22 @@
                 });
 
                 if (response.ok) {
-                    alert("🎉 Đặt hàng thành công!");
+                    checkoutModal.hide();
                     localStorage.removeItem("CART"); // Xóa giỏ hàng
+                    cart = [];
+                    renderCart();
+                    
+                    // Thông báo đẹp
+                    alert(`🎉 Đặt hàng thành công!\nĐơn hàng sẽ được giao tới: ${fullAddress}`);
                     window.location.href = "/";
                 } else {
-                    alert("Lỗi khi tạo đơn hàng!");
+                    alert("Có lỗi xảy ra khi tạo đơn hàng!");
                 }
             } catch (err) {
                 console.error(err);
-                alert("Không thể kết nối tới Order Service!");
+                alert("Không thể kết nối tới Order Service! (Kiểm tra xem service 8083 có chạy không)");
+            } finally {
+                document.getElementById("checkoutLoading").classList.add("d-none");
             }
         }
     </script>

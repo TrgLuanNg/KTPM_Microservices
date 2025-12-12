@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable; // Nhớ import dòng này
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Map;
@@ -16,10 +16,12 @@ public class HomeController {
     @Value("${app.backend-url}")
     private String backendUrl;
 
+    // --- Trang chủ ---
     @GetMapping("/")
     public String home(Model model) {
         try {
             RestTemplate restTemplate = new RestTemplate();
+            // Gọi backend lấy danh sách sản phẩm
             List<Map<String, Object>> products = restTemplate.getForObject(backendUrl, List.class);
 
             model.addAttribute("products", products);
@@ -32,9 +34,9 @@ public class HomeController {
 
         return "home";
     }
-}
 
-@GetMapping("/product/{id}")
+    // --- Trang chi tiết sản phẩm (MỚI) ---
+    @GetMapping("/product/{id}")
     public String productDetail(@PathVariable Long id, Model model) {
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -48,9 +50,10 @@ public class HomeController {
         }
         return "detail"; // Trả về file detail.html
     }
-}
 
-@GetMapping("/cart")
+    @GetMapping("/cart")
     public String viewCart() {
         return "cart"; // Trả về file cart.html
     }
+
+}
